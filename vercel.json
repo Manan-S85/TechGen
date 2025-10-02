@@ -1,9 +1,15 @@
 {
   "version": 2,
   "name": "techgen-fullstack",
-  "buildCommand": "cd frontend && npm run build",
+  "buildCommand": "cd frontend && npm ci && npm run build",
   "outputDirectory": "frontend/build",
-  "installCommand": "npm install --prefix frontend && npm install --prefix api",
+  "installCommand": "npm install --prefix api",
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -11,7 +17,7 @@
     },
     {
       "source": "/((?!api).*)",
-      "destination": "/frontend/build/index.html"
+      "destination": "/index.html"
     }
   ],
   "functions": {
