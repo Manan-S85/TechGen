@@ -2,7 +2,7 @@ const axios = require("axios");
 
 const REDDIT_CLIENT_ID = process.env.REDDIT_CLIENT_ID;
 const REDDIT_SECRET = process.env.REDDIT_SECRET;
-const USER_AGENT = "TechSite:1.0.0 (by /u/techsite_user)";
+const USER_AGENT = "TechGen:1.0.0 (by /u/techgen_user)";
 
 // Cache token to avoid repeated requests
 let cachedToken = null;
@@ -71,16 +71,21 @@ async function fetchRedditWithAuth() {
 
     return response.data.data.children
       .filter(post => post.data && post.data.title) // Filter out invalid posts
-      .map(post => ({
-        title: post.data.title,
-        url: post.data.url.startsWith('/') ? `https://reddit.com${post.data.url}` : post.data.url,
-        source: "Reddit - r/technology",
-        publishedAt: new Date(post.data.created_utc * 1000).toISOString(),
-        description: post.data.selftext ? post.data.selftext.substring(0, 200) + '...' : '',
-        author: post.data.author,
-        score: post.data.score,
-        category: 'Technology'
-      }));
+      .map(post => {
+        const title = post.data.title || '';
+        const description = post.data.selftext ? post.data.selftext.substring(0, 200) + '...' : '';
+        const { categorizeNews } = require("./categorizer");
+        return {
+          title: title,
+          url: post.data.url.startsWith('/') ? `https://reddit.com${post.data.url}` : post.data.url,
+          source: "Reddit - r/technology",
+          publishedAt: new Date(post.data.created_utc * 1000).toISOString(),
+          description: description,
+          author: post.data.author,
+          score: post.data.score,
+          category: categorizeNews(title, description)
+        };
+      });
 
   } catch (error) {
     if (error.response?.status === 403) {
@@ -111,14 +116,19 @@ async function fetchRedditPublic() {
       timeout: 15000,
     });
 
-    return response.data.data.children.map(post => ({
-      title: post.data.title,
-      url: post.data.url.startsWith('/') ? `https://reddit.com${post.data.url}` : post.data.url,
-      source: "Reddit - r/technology",
-      publishedAt: new Date(post.data.created_utc * 1000).toISOString(),
-      description: post.data.selftext ? post.data.selftext.substring(0, 200) + '...' : '',
-      category: 'Technology'
-    }));
+    return response.data.data.children.map(post => {
+      const title = post.data.title || '';
+      const description = post.data.selftext ? post.data.selftext.substring(0, 200) + '...' : '';
+      const { categorizeNews } = require("./categorizer");
+      return {
+        title: title,
+        url: post.data.url.startsWith('/') ? `https://reddit.com${post.data.url}` : post.data.url,
+        source: "Reddit - r/technology",
+        publishedAt: new Date(post.data.created_utc * 1000).toISOString(),
+        description: description,
+        category: categorizeNews(title, description)
+      };
+    });
   } catch (error) {
     console.error("Reddit Public API Error:", error.message);
     throw error;

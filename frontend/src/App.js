@@ -7,6 +7,7 @@ import Signup from './pages/signup';
 import NewsFeed from './pages/NewFeed';
 import NewsDetail from './components/NewsDetail';
 import Navbar from './components/navbar';
+import Footer from './components/Footer';
 
 export const NewsContext = createContext();
 
@@ -25,6 +26,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
+        <Footer />
       </Router>
     </NewsContext.Provider>
   );

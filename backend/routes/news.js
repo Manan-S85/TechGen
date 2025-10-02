@@ -6,11 +6,44 @@ const router = express.Router();
 
 // @desc    Get all news (aggregated from multiple sources)
 // @route   GET /api/news
-// @access  Public
+// @access  Public (limited) / Protected (full access)
 router.get('/', async (req, res) => {
   try {
     const news = await aggregateNews();
-    res.json(news);
+    
+    // Check if user is authenticated via token in headers
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const isAuthenticated = !!token; // Simple check - you can make this more robust
+    
+    // If user is not authenticated, show only first 3 news items
+    if (!isAuthenticated) {
+      const limitedNews = news.slice(0, 3).map(item => ({
+        ...item,
+        isLocked: false
+      }));
+      
+      // Add locked placeholders to show what they're missing
+      const lockedPlaceholders = Array(5).fill(null).map((_, index) => ({
+        id: `locked-${index}`,
+        title: "Exclusive Tech News",
+        description: "Sign up to access premium technology news, in-depth analysis, and breaking updates",
+        isLocked: true,
+        source: "TechGen Premium",
+        publishedAt: new Date().toISOString(),
+        category: "Technology",
+        url: "#"
+      }));
+      
+      return res.json([...limitedNews, ...lockedPlaceholders]);
+    }
+    
+    // For authenticated users, return all news
+    const fullNews = news.map(item => ({
+      ...item,
+      isLocked: false
+    }));
+    
+    res.json(fullNews);
   } catch (error) {
     console.error('Error fetching news:', error);
     res.status(500).json({ 
@@ -61,6 +94,32 @@ router.get('/latest', async (req, res) => {
     console.error('Error fetching latest news:', error);
     res.status(500).json({ 
       message: 'Failed to fetch latest news', 
+      error: error.message 
+    });
+  }
+});
+
+// @desc    Get student-specific news
+// @route   GET /api/news/students
+// @access  Protected
+router.get('/students', protect, async (req, res) => {
+  try {
+    const allNews = await aggregateNews();
+    const { isRelevantToStudents } = require('../services/categorizer');
+    
+    // Filter news that is relevant to students
+    const studentNews = allNews.filter(item => {
+      return item.category === 'Student' || isRelevantToStudents(item.title, item.description);
+    });
+    
+    // Sort by publishedAt
+    studentNews.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+    
+    res.json(studentNews);
+  } catch (error) {
+    console.error('Error fetching student news:', error);
+    res.status(500).json({ 
+      message: 'Failed to fetch student news', 
       error: error.message 
     });
   }

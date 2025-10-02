@@ -1,54 +1,47 @@
 import React from 'react';
 
-const StudentSection = ({ students, userRole }) => {
-  const handleEdit = (studentId) => {
-    console.log('Edit student:', studentId);
-    // Implement edit functionality
-  };
-
-  const handleDelete = (studentId) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
-      console.log('Delete student:', studentId);
-      // Implement delete functionality
-    }
-  };
-
+const StudentSection = ({ studentNews, userRole }) => {
   return (
     <div className="students-section">
       <div className="students-header">
-        <h3>Student List</h3>
-        {userRole === 'admin' && (
-          <button className="btn btn-primary">Add New Student</button>
-        )}
+        <h3>Latest Student News</h3>
+        <p className="section-description">News and updates relevant to students and education</p>
       </div>
       
-      <div className="students-grid">
-        {students.length === 0 ? (
-          <p>No students found.</p>
+      <div className="student-news-grid">
+        {studentNews.length === 0 ? (
+          <div className="no-news">
+            <p>No student-specific news available at the moment.</p>
+            <p>Check back later for updates on education, careers, and student life!</p>
+          </div>
         ) : (
-          students.map((student) => (
-            <div key={student.id} className="student-card">
-              <h4>{student.name}</h4>
-              <p><strong>Email:</strong> {student.email}</p>
-              <p><strong>Course:</strong> {student.course}</p>
-              <p><strong>Year:</strong> {student.year}</p>
-              
-              {userRole === 'admin' && (
-                <div className="student-actions">
-                  <button
-                    className="btn btn-sm btn-secondary"
-                    onClick={() => handleEdit(student.id)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => handleDelete(student.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
+          studentNews.map((item, idx) => (
+            <div key={idx} className="student-news-card">
+              <div className="news-category-badge student-category">
+                {item.category}
+              </div>
+              <h4>
+                <a href={item.url} target="_blank" rel="noreferrer">
+                  {item.title}
+                </a>
+              </h4>
+              <div className="student-news-meta">
+                <span className="news-source">{item.source}</span>
+                <span className="news-date">
+                  {new Date(item.publishedAt).toLocaleDateString()}
+                </span>
+              </div>
+              {item.description && (
+                <p className="news-description">{item.description}</p>
               )}
+              <a 
+                href={item.url} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="student-news-link"
+              >
+                Read Full Article →
+              </a>
             </div>
           ))
         )}

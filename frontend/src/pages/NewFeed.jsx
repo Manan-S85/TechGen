@@ -1,14 +1,32 @@
 import { useEffect, useState } from "react";
+import SignupPrompt from "../components/SignupPrompt";
+import Icon from "../components/Icon";
 
 export default function NewsFeed() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
 
   useEffect(() => {
+    // Check if user is logged in
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+
     const fetchNews = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/news");
+        const headers = {};
+        if (userData) {
+          const userObj = JSON.parse(userData);
+          if (userObj.token) {
+            headers['Authorization'] = `Bearer ${userObj.token}`;
+          }
+        }
+
+        const response = await fetch("http://localhost:5000/api/news", { headers });
         if (!response.ok) {
           throw new Error('Failed to fetch news');
         }
@@ -52,28 +70,54 @@ export default function NewsFeed() {
           <p>No news available at the moment.</p>
         ) : (
           news.map((item, idx) => (
-            <div key={idx} className="news-item">
-              <h3>
-                <a href={item.url} target="_blank" rel="noreferrer">
-                  {item.title}
-                </a>
-              </h3>
-              <div className="news-meta">
-                <span className="news-source">{item.source}</span>
-                <span className="news-date">
-                  {new Date(item.publishedAt).toLocaleDateString()}
-                </span>
-              </div>
-              {item.description && (
-                <p className="news-description">{item.description}</p>
+            <div key={idx} className={`news-item ${item.isLocked ? 'locked' : ''}`}>
+              {item.isLocked ? (
+                <div className="locked-content">
+                  <div className="lock-icon">
+                    <Icon name="lock" size={32} />
+                  </div>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                  <div className="signup-prompt">
+                    <button 
+                      className="btn btn-primary" 
+                      onClick={() => setShowSignupPrompt(true)}
+                    >
+                      Unlock Full Access
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h3>
+                    <a href={item.url} target="_blank" rel="noreferrer">
+                      {item.title}
+                    </a>
+                  </h3>
+                  <div className="news-meta">
+                    <span className="news-source">{item.source}</span>
+                    <span className="news-category">{item.category}</span>
+                    <span className="news-date">
+                      {new Date(item.publishedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  {item.description && (
+                    <p className="news-description">{item.description}</p>
+                  )}
+                  <a href={item.url} target="_blank" rel="noreferrer" className="news-link">
+                    Read More →
+                  </a>
+                </>
               )}
-              <a href={item.url} target="_blank" rel="noreferrer" className="news-link">
-                Read More →
-              </a>
             </div>
           ))
         )}
       </div>
+      
+      <SignupPrompt 
+        isOpen={showSignupPrompt} 
+        onClose={() => setShowSignupPrompt(false)} 
+      />
     </div>
   );
 }

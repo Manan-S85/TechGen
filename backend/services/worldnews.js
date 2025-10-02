@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { categorizeNews } = require("./categorizer");
 
 async function fetchWorldNews() {
   try {
@@ -10,14 +11,18 @@ async function fetchWorldNews() {
       throw new Error('Failed to fetch BBC Tech RSS');
     }
 
-    return res.data.items.slice(0, 10).map(item => ({
-      title: item.title,
-      url: item.link,
-      source: "BBC Technology",
-      publishedAt: item.pubDate,
-      description: item.description ? item.description.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : '',
-      category: 'Technology'
-    }));
+    return res.data.items.slice(0, 10).map(item => {
+      const title = item.title || '';
+      const description = item.description ? item.description.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : '';
+      return {
+        title: title,
+        url: item.link,
+        source: "BBC Technology",
+        publishedAt: item.pubDate,
+        description: description,
+        category: categorizeNews(title, description)
+      };
+    });
   } catch (err) {
     console.error("World News (BBC) Error:", err.message);
     return [];

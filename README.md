@@ -1,4 +1,4 @@
-# TechSite - Technology News Aggregator
+# TechGen - Technology News Aggregator
 
 A full-stack web application that aggregates technology news from multiple sources including NewsAPI, Reddit, BBC Technology, and GNews.
 
@@ -46,7 +46,7 @@ A full-stack web application that aggregates technology news from multiple sourc
 
 3. Create a `.env` file in the backend directory:
    ```env
-   MONGO_URI=mongodb://localhost:27017/techsite
+   MONGO_URI=mongodb://localhost:27017/techgen
    JWT_SECRET=your_jwt_secret_key_here
    NEWS_API_KEY=your_newsapi_key_here
    GNEWS_API_KEY=your_gnews_api_key_here
@@ -118,7 +118,7 @@ If API keys are not provided, the application will skip those sources and contin
 ## Project Structure
 
 ```
-techsite/
+techgen/
 ├── backend/
 │   ├── config/
 │   │   └── db.js              # Database configuration

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import StudentSection from '../components/studentsection';
 
 const Students = () => {
-  const [students, setStudents] = useState([]);
+  const [studentNews, setStudentNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Get user from localStorage
@@ -13,54 +14,65 @@ const Students = () => {
       setUser(JSON.parse(userData));
     }
 
-    // Mock students data - replace with API call later
-    const mockStudents = [
-      {
-        id: 1,
-        name: 'John Doe',
-        email: 'john@example.com',
-        course: 'Computer Science',
-        year: '3rd Year'
-      },
-      {
-        id: 2,
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        course: 'Information Technology',
-        year: '2nd Year'
-      },
-      {
-        id: 3,
-        name: 'Mike Johnson',
-        email: 'mike@example.com',
-        course: 'Software Engineering',
-        year: '4th Year'
+    const fetchStudentNews = async () => {
+      if (!userData) {
+        setLoading(false);
+        return;
       }
-    ];
 
-    setTimeout(() => {
-      setStudents(mockStudents);
-      setLoading(false);
-    }, 1000);
+      try {
+        const userObj = JSON.parse(userData);
+        const headers = {};
+        if (userObj.token) {
+          headers['Authorization'] = `Bearer ${userObj.token}`;
+        }
+
+        const response = await fetch('http://localhost:5000/api/news/students', { headers });
+        if (!response.ok) {
+          throw new Error('Failed to fetch student news');
+        }
+        const data = await response.json();
+        setStudentNews(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchStudentNews();
   }, []);
 
   if (!user) {
     return (
       <div className="container">
-        <h2>Please login to view students</h2>
-        <a href="/login" className="btn">Login</a>
+        <h2>Please login to view the Student Section</h2>
+        <p>Access student-specific news, resources, and information by signing up or logging in.</p>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <a href="/signup" className="btn btn-primary">Sign Up</a>
+          <a href="/login" className="btn btn-secondary">Login</a>
+        </div>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="loading">Loading students...</div>;
+    return <div className="loading">Loading student news...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="container">
+        <div className="error">Error: {error}</div>
+      </div>
+    );
   }
 
   return (
     <div className="container">
-      <h2>Students Management</h2>
-      <StudentSection students={students} userRole={user.role} />
+      <h2>Student News & Resources</h2>
+      <p>Stay updated with news relevant to students, education, and career development.</p>
+      <StudentSection studentNews={studentNews} userRole={user.role} />
     </div>
   );
 };

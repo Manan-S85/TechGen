@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import NewsList from '../components/newslist';
 import { NewsContext } from '../App';
+import Icon from '../components/Icon';
 
 const Home = () => {
   const [news, setNews] = useState([]);
@@ -11,17 +12,41 @@ const Home = () => {
     // Fetch real news data from backend
     const fetchNews = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/news/latest?limit=25');
+        // Check if user is authenticated
+        const userData = localStorage.getItem('user');
+        const headers = {};
+        if (userData) {
+          try {
+            const userObj = JSON.parse(userData);
+            if (userObj.token) {
+              headers['Authorization'] = `Bearer ${userObj.token}`;
+            }
+          } catch (e) {
+            console.warn('Error parsing user data');
+          }
+        }
+
+        const response = await fetch('http://localhost:5000/api/news', { headers });
         const data = await response.json();
         
+        // Filter to show only general and technology news on home page
+        const homeRelevantNews = data.filter(item => 
+          item.category === 'General' || item.category === 'Technology'
+        );
+        
         // Transform backend data to match frontend format
-        const transformedNews = data.map(item => ({
+        const transformedNews = homeRelevantNews.map(item => ({
           title: item.title,
           date: new Date(item.publishedAt).toLocaleDateString(),
-          category: item.category || 'Technology',
+          category: item.category || 'General',
           description: item.description || 'Click to read more...',
-          link: item.url
+          link: item.url,
+          isLocked: item.isLocked || false
         }));
+        
+        // Debug: Log to see if we have locked items
+        console.log('Transformed news:', transformedNews);
+        console.log('Locked items:', transformedNews.filter(item => item.isLocked));
         
         setNews(transformedNews);
         setNewsData(transformedNews); // Share with context
@@ -118,10 +143,15 @@ const Home = () => {
     <div className="home-container">
       <div className="hero-section">
         <div className="hero-content">
-          <span className="hero-badge">MEET TECHSITE</span>
+          <span className="hero-badge">MEET TECHGEN</span>
           <h1>Experience the Future of Technology News</h1>
-          <p>TechSite - revolutionizing news aggregation. Supports various sources for global reach and engagement.</p>
-          <button className="cta-button">Contact Us →</button>
+          <p>TechGen - revolutionizing news aggregation. Supports various sources for global reach and engagement.</p>
+          <button 
+            className="cta-button"
+            onClick={() => window.open('https://manan-portfolio-alpha.vercel.app/', '_blank')}
+          >
+            About the Dev →
+          </button>
         </div>
       </div>
 
@@ -129,7 +159,9 @@ const Home = () => {
         <div className="container">
           <div className="features-grid">
             <div className="feature-card">
-              <div className="feature-icon">🔄</div>
+              <div className="feature-icon">
+                <Icon name="refresh" size={32} />
+              </div>
               <h3>Real-time Updates</h3>
               <p>Evolves with trends, offering increasingly relevant content.</p>
               <button className="feature-link">+ Learn more</button>
@@ -158,21 +190,7 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="testimonial-section">
-        <div className="container">
-          <div className="testimonial-content">
-            <div className="testimonial-text">
-              <blockquote>
-                "Working with TechSite has been a breeze from start to finish! I'm blown away!"
-              </blockquote>
-              <cite>Jane Doe - Tech Enthusiast</cite>
-            </div>
-            <div className="testimonial-image">
-              <div className="user-avatar"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 };
