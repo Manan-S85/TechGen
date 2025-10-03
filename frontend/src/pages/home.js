@@ -133,7 +133,7 @@ const Home = () => {
     };
 
     fetchNews();
-  }, []);
+  }, [setNewsData]);
 
   if (loading) {
     return <div className="loading">Loading news...</div>;

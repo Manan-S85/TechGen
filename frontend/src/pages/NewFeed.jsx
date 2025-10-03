@@ -6,7 +6,6 @@ export default function NewsFeed() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
 
   useEffect(() => {

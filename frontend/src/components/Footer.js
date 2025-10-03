@@ -60,10 +60,10 @@ const Footer = () => {
           <div className="footer-bottom-content">
             <div className="footer-credits">
               <span>Powered by</span>
-              <a href="#" className="credit-link">TechGen Team</a>
+              <button type="button" className="credit-link">TechGen Team</button>
               <span>•</span>
               <span>Designed by</span>
-              <a href="#" className="credit-link">TechGen Studio</a>
+              <button type="button" className="credit-link">TechGen Studio</button>
             </div>
           </div>
         </div>
