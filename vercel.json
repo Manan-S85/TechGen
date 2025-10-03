@@ -13,26 +13,26 @@
       }
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
     },
     {
-      "source": "/static/(.*)",
-      "destination": "/frontend/static/$1"
+      "src": "/static/(.*)",
+      "dest": "/frontend/static/$1"
     },
     {
-      "source": "/favicon.ico",
-      "destination": "/frontend/favicon.ico"
+      "src": "/(favicon\\.ico|manifest\\.json|robots\\.txt)",
+      "dest": "/frontend/$1"
     },
     {
-      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "destination": "/frontend/$1"
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map))",
+      "dest": "/frontend/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "/frontend/index.html"
+      "src": "/(.*)",
+      "dest": "/frontend/index.html"
     }
   ]
 }
