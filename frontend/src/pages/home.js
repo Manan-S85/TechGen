@@ -26,7 +26,7 @@ const Home = () => {
           }
         }
 
-        const response = await fetch('http://localhost:5000/api/news', { headers });
+        const response = await fetch('/api/news', { headers });
         const data = await response.json();
         
         // Filter to show only general and technology news on home page
