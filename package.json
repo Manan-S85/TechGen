@@ -4,7 +4,7 @@
   "description": "Full-stack TechGen application",
   "scripts": {
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm start\"",
-    "build": "cd frontend && npm install && npm run build",
+    "build": "cd frontend && npm run build",
     "start": "cd backend && npm start",
     "install:frontend": "cd frontend && npm install",
     "install:backend": "cd backend && npm install",
